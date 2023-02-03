@@ -21,9 +21,9 @@ app.use(
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 
-app.use("/admin", authRoutes);
-app.use("/admin",products);
-app.use("/products",productDetails);
+app.use("/api/admin", authRoutes);
+app.use("/api/admin",products);
+app.use("/api/products",productDetails);
 
 app.listen(PORT, () =>
   console.log(`Server Running on Port: http://localhost:${PORT}`)

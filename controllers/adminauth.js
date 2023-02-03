@@ -46,8 +46,9 @@ export const signIn = async (req, res) => {
 };
 
 export const signUp = async (req, res) => {
-  const { email, password, confirmPassword, firstName, lastName, otp, role } =
+  const { email, password, confirmPassword, firstName, lastName, otp} =
     req.body;
+  const role="admin";
   const passMusthave = ["lowercase", "uppercase", "symbol", "number"];
 
   const passContains = passwordStrength(password).contains;
@@ -111,7 +112,7 @@ export const signUp = async (req, res) => {
       // await sendmail({ userName, email, type: "signUpOtp", generatedOtp });
       console.log(generatedOtp);
 
-      return res.json({ successMessage: "OTP Sent on registered Email" });
+      return res.json({ successMessage: "OTP Sent on Admin Email" });
     }
 
     if (otp) {

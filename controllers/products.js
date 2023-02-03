@@ -37,7 +37,7 @@ export const deleteProduct = async (req, res) => {
   }
 };
 export const updateProduct = async (req, res) => {
-  const { price, date, time, location, productId } = req.body;
+  const { price, date, location, productId } = req.body;
   try {
     const productExist = await db
       .promise()
@@ -48,8 +48,8 @@ export const updateProduct = async (req, res) => {
     await db
       .promise()
       .query(
-        "INSERT INTO productdetails (product_id, price, location, date, time) VALUES (?,?,?,?,?)",
-        [productId, price, location, date, time]
+        "INSERT INTO productdetails (product_id, price, location, datetime) VALUES (?,?,?,?)",
+        [productId, price, location, date]
       );
 
     res.status(200).json({ message: "Product details updated successfully" });
