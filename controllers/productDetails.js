@@ -1,6 +1,16 @@
 import connection from "../config/dbconnection.js";
 const db = connection();
 
+export const getProduct = async(req,res)=>{
+  try {
+    const sql="SELECT * FROM products";
+   const data = await db.promise().query(sql);
+   res.status(200).json(data[0]);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json([]);
+  }
+}
 
 export const productDetails =async(req,res)=>{
   const {productId}=req.query;
@@ -10,9 +20,7 @@ export const productDetails =async(req,res)=>{
    res.status(200).json(data[0]);
   } catch (error) {
     console.log(error);
-    res.status(500);
+    res.status(500).json([]);
   }
-
-
 
 }
