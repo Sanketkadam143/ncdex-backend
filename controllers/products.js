@@ -11,7 +11,7 @@ export const addProduct = async (req, res) => {
         [name, symbol, category, description, image]
       );
 
-    res.status(500).json({ message: "Product Added successfully" });
+    res.status(200).json({ successMessage: "Product Added successfully" });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
     console.log(error);
@@ -30,7 +30,7 @@ export const deleteProduct = async (req, res) => {
     const sql = "DELETE FROM products WHERE id = ?";
     await db.promise().query(sql, [id]);
 
-    res.status(200).json({ message: "Product Deleted successfully" });
+    res.status(200).json({ successMessage: "Product Deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
     console.log(error);
@@ -52,7 +52,9 @@ export const updateProduct = async (req, res) => {
         [productId, price, location, date]
       );
 
-    res.status(200).json({ message: "Product details updated successfully" });
+    res
+      .status(200)
+      .json({ successMessage: "Product details updated successfully" });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
     console.log(error);

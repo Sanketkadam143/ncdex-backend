@@ -10,4 +10,5 @@ router.post('/updateproduct',auth,updateProduct);
 router.delete('/deleteproduct',auth,deleteProduct);
 
 
+
 export default router;

@@ -48,7 +48,7 @@ export const signIn = async (req, res) => {
 export const signUp = async (req, res) => {
   const { email, password, confirmPassword, firstName, lastName, otp} =
     req.body;
-  const role="admin";
+  const role="superadmin";
   const passMusthave = ["lowercase", "uppercase", "symbol", "number"];
 
   const passContains = passwordStrength(password).contains;
@@ -155,4 +155,15 @@ export const signUp = async (req, res) => {
 
 export const resetPass = async (req, res) => {
   res.status(200).json("resetPass");
+};
+
+export const getAdmins = async(req,res)=>{
+  try {
+    const sql="SELECT username, email,role FROM admin_login";
+   const data = await db.promise().query(sql);
+   res.status(200).json(data[0]);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json([]);
+  }
 };
