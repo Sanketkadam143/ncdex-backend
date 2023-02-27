@@ -37,7 +37,6 @@ export const signIn = async (req, res) => {
     );
     res.status(200).json({
       token,
-      result: rows[0],
       successMessage: "You are Successfully Logged in",
     });
   } catch (error) {
@@ -46,9 +45,8 @@ export const signIn = async (req, res) => {
 };
 
 export const signUp = async (req, res) => {
-  const { email, password, confirmPassword, firstName, lastName, otp} =
+  const { email, password, confirmPassword, firstName, lastName, otp,role } =
     req.body;
-  const role="superadmin";
   const passMusthave = ["lowercase", "uppercase", "symbol", "number"];
 
   const passContains = passwordStrength(password).contains;
@@ -61,6 +59,12 @@ export const signUp = async (req, res) => {
   const userName = firstName + " " + lastName;
 
   try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decode = jwt.decode(token);
+
+    if (decode.role !== "superadmin")
+      return res.status(400).json({ message: "unauthorized" });
+      
     if (!validator.isAlpha(firstName))
       return res
         .status(400)
@@ -102,12 +106,11 @@ export const signUp = async (req, res) => {
       const hashedOtp = await bcrypt.hash(generatedOtp, 12);
 
       await db
-      .promise()
-      .query(
-        `INSERT INTO otp (email, OTP ,expires) VALUES (?,?,DATE_ADD(NOW(), INTERVAL 5 MINUTE)) ON DUPLICATE KEY UPDATE OTP=?, expires=DATE_ADD(NOW(), INTERVAL 5 MINUTE)`,
-        [email, hashedOtp, hashedOtp]
-      );
-
+        .promise()
+        .query(
+          `INSERT INTO otp (email, OTP ,expires) VALUES (?,?,DATE_ADD(NOW(), INTERVAL 5 MINUTE)) ON DUPLICATE KEY UPDATE OTP=?, expires=DATE_ADD(NOW(), INTERVAL 5 MINUTE)`,
+          [email, hashedOtp, hashedOtp]
+        );
 
       // await sendmail({ userName, email, type: "signUpOtp", generatedOtp });
       console.log(generatedOtp);
@@ -157,13 +160,41 @@ export const resetPass = async (req, res) => {
   res.status(200).json("resetPass");
 };
 
-export const getAdmins = async(req,res)=>{
+export const getAdmins = async (req, res) => {
   try {
-    const sql="SELECT username, email,role FROM admin_login";
-   const data = await db.promise().query(sql);
-   res.status(200).json(data[0]);
+    const sql = "SELECT id,username, email,role FROM admin_login";
+    const data = await db.promise().query(sql);
+    res.status(200).json(data[0]);
   } catch (error) {
     console.log(error);
     res.status(500).json([]);
+  }
+};
+
+export const deleteAdmins = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decode = jwt.decode(token);
+
+    if (decode.role !== "superadmin")
+      return res.status(400).json({ message: "unauthorized" });
+
+    const admin = await db
+      .promise()
+      .query("SELECT * from admin_login  WHERE id=?", [id]);
+
+    if (!admin[0][0])
+      return res.status(404).json({ message: "Admin not found" });
+    if (admin[0][0].role === "superadmin")
+      return res
+        .status(400)
+        .json({ message: "admin cannot delete superadmin" });
+    await db.promise().query("DELETE FROM admin_login WHERE id=?", [id]);
+
+    return res.status(200).json({ successMessage: "Admin Deleted" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "something went wrong" });
   }
 };

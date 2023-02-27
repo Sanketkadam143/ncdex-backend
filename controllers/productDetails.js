@@ -8,7 +8,7 @@ export const getProduct = async(req,res)=>{
    res.status(200).json(data[0]);
   } catch (error) {
     console.log(error);
-    res.status(500).json([]);
+    res.status(500).json({ message: "Something went wrong" });
   }
 }
 
@@ -20,7 +20,7 @@ export const productDetails =async(req,res)=>{
    res.status(200).json(data[0]);
   } catch (error) {
     console.log(error);
-    res.status(500).json([]);
+    res.status(500).json({ message: "Something went wrong" });
   }
 
 }
