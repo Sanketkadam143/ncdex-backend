@@ -1,5 +1,5 @@
 import express from 'express';
-import { addProduct,deleteProduct,updateProduct } from '../controllers/products.js';
+import { addProduct,deleteProduct,updateProduct} from '../controllers/products.js';
 import auth from '../middleware/auth.js';
 
 const  router=express.Router();

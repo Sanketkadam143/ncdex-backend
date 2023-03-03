@@ -18,7 +18,7 @@ const auth = async (req, res, next) => {
     req.userId = decodedData?.id;
     next();
   } catch (error) {
-    console.log("token expire");
+    console.log(error);
     return res.status(401).send({ message: "unauthorized" });
   }
 };
