@@ -35,17 +35,17 @@ export const signIn = async (req, res) => {
         expiresIn: JWT_EXPIRE,
       }
     );
-    res.status(200).json({
+    return res.status(200).json({
       token,
       successMessage: "You are Successfully Logged in",
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 export const signUp = async (req, res) => {
-  const { email, password, confirmPassword, firstName, lastName, otp,role } =
+  const { email, password, confirmPassword, firstName, lastName, otp, role } =
     req.body;
   const passMusthave = ["lowercase", "uppercase", "symbol", "number"];
 
@@ -64,7 +64,7 @@ export const signUp = async (req, res) => {
 
     if (decode.role !== "superadmin")
       return res.status(400).json({ message: "unauthorized" });
-      
+
     if (!validator.isAlpha(firstName))
       return res
         .status(400)
@@ -145,14 +145,14 @@ export const signUp = async (req, res) => {
 
         // await sendmail({ userName, email, type: "signUp" });
 
-        res.status(200).json({
+        return res.status(200).json({
           successMessage: "Account created Successfully",
         });
       }
     }
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
     console.log(error);
+    return res.status(500).json({ message: "Something went wrong" });
   }
 };
 

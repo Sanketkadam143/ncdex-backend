@@ -3,20 +3,29 @@ const db = connection();
 
 export const addProduct = async (req, res) => {
   const { name, symbol, category, description, image } = req.body;
+  const lowercaseName = name.toLowerCase(); // convert name to lowercase
+
   try {
-    await db
+    const result = await db
       .promise()
       .query(
-        "INSERT INTO products (name ,symbol,category,description,image) VALUES (?,?,?,?,?)",
-        [name, symbol, category, description, image]
+        "INSERT INTO products (name, symbol, category, description, image) SELECT ?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM products WHERE LOWER(name) = ?)",
+        [name, symbol, category, description, image, lowercaseName]
       );
 
-    res.status(200).json({ successMessage: "Product Added successfully" });
+    if (result[0].affectedRows === 1) {
+      return res.status(200).json({ successMessage: "Product added successfully" });
+    } else {
+     return res.status(400).json({ message: "Product already exists" });
+    }
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
     console.log(error);
+    return res.status(500).json({ message: "Something went wrong" });
+   
   }
 };
+
+
 
 export const deleteProduct = async (req, res) => {
   const { id } = req.query;
@@ -30,33 +39,48 @@ export const deleteProduct = async (req, res) => {
     const sql = "DELETE FROM products WHERE id = ?";
     await db.promise().query(sql, [id]);
 
-    res.status(200).json({ successMessage: "Product Deleted successfully" });
+   return res.status(200).json({ successMessage: "Product Deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
     console.log(error);
+    return res.status(500).json({ message: "Something went wrong" });
+   
   }
 };
 export const updateProduct = async (req, res) => {
-  const { price, date, location, productId } = req.body;
+  const { price, date, location, productId,percentChange,name } = req.body;
   try {
     const productExist = await db
-      .promise()
-      .query("SELECT * FROM products WHERE id = ?", [productId]);
-    if (!productExist.length)
-      return res.status(404).json({ message: "Product not found" });
+    .promise()
+    .query("SELECT name FROM products WHERE id = ?", [productId]);
 
-    await db
-      .promise()
-      .query(
-        "INSERT INTO productdetails (product_id, price, location, datetime) VALUES (?,?,?,?)",
-        [productId, price, location, date]
-      );
-
-    res
-      .status(200)
-      .json({ successMessage: "Product details updated successfully" });
+  if (!productExist[0].length) {
+    return res.status(404).json({ message: "Product not found" });
+  }
+  
+  const datetimeExist = await db
+    .promise()
+    .query(
+      "SELECT * FROM productdetails WHERE product_id = ? AND datetime = ?",
+      [productId, date]
+    );
+  if (datetimeExist[0].length) {
+    return res
+      .status(400)
+      .json({ message: "Product details for this datetime already exist" });
+  }
+  
+  await db
+    .promise()
+    .query(
+      "INSERT INTO productdetails (product_id, price, location, datetime, percentChange, name) VALUES (?,?,?,?,?,?)",
+      [productId, price, location, date, percentChange, name]
+    );
+  
+   return res.status(200).json({ successMessage: "Product details updated successfully" });
+  
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
     console.log(error);
+   return  res.status(500).json({ message: "Something went wrong" });
+    
   }
 };
